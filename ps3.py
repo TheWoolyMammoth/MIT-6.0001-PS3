@@ -165,7 +165,7 @@ def deal_hand(n):
 #
 # Problem #2: Update a hand by removing letters
 #
-def update_hand(hand, word):
+def update_hand(hand,word):
     """
     Does NOT assume that hand contains every letter in word at least as
     many times as the letter appears in word. Letters in word that don't
@@ -183,9 +183,22 @@ def update_hand(hand, word):
     hand: dictionary (string -> int)    
     returns: dictionary (string -> int)
     """
+    copy_hand = hand.copy()
+    word=word.lower() #was having errors with the letters not being in the correct case for comparison, convert string word to be lowercase
+    dict_word = get_frequency_dict(word)
+    for letter in hand:
+        if letter in dict_word:
+            copy_hand[letter]=copy_hand[letter]-dict_word[letter]
+            if copy_hand[letter] < 0:
+                copy_hand[letter]=0
+    #looping over the original hand that was passed in and removing from the copy_hand
+    for letter in hand:
+        if copy_hand[letter]==0:
+            del copy_hand[letter]
+    return copy_hand
+    #pass  # TO DO... Remove this line when you implement this function
 
-    pass  # TO DO... Remove this line when you implement this function
-
+#print(update_hand({'e': 1, 'v': 2, 'n': 1, 'i': 1, 'l': 2},'Evil'))
 #
 # Problem #3: Test word validity
 #
@@ -200,8 +213,20 @@ def is_valid_word(word, hand, word_list):
     word_list: list of lowercase strings
     returns: boolean
     """
-
-    pass  # TO DO... Remove this line when you implement this function
+    Status=False
+    word=word.lower()
+    dict_word=get_frequency_dict(word)
+    if word_list.count(word) > 0:
+        for letter in dict_word:
+            try:
+                if dict_word[letter]!=hand[letter]:
+                    break
+                else:
+                    Status=True
+            except KeyError:
+                pass
+    return Status
+    #pass  # TO DO... Remove this line when you implement this function
 
 #
 # Problem #5: Playing a hand
