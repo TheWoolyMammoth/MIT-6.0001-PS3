@@ -13,7 +13,8 @@ import string
 
 VOWELS = 'aeiou'
 CONSONANTS = 'bcdfghjklmnpqrstvwxyz'
-HAND_SIZE = 7
+WILDCARD = "*"
+HAND_SIZE = 7 #originally set this to 6 set it back to 7 for testing is_valid_again
 
 SCRABBLE_LETTER_VALUES = {
     'a': 1, 'b': 3, 'c': 3, 'd': 2, 'e': 1, 'f': 4, 'g': 2, 'h': 4, 'i': 1, 'j': 8, 'k': 5, 'l': 1, 'm': 3, 'n': 1, 'o': 1, 'p': 3, 'q': 10, 'r': 1, 's': 1, 't': 1, 'u': 1, 'v': 4, 'w': 4, 'x': 8, 'y': 4, 'z': 10
@@ -101,7 +102,11 @@ def get_word_score(word, n):
         lower_word=word.lower()
         #print(lower_word) #printing lower case version of the original word for testing purposes.
         for letter in lower_word:
-            sum_of_points+=SCRABBLE_LETTER_VALUES[letter]
+            try:
+                sum_of_points+=SCRABBLE_LETTER_VALUES[letter]
+            except KeyError:
+                #if there is a WILDCARD value you get zero points
+                sum_of_points+=0
         if second_result <= 1:
             product_of_points=sum_of_points*1
         else:
@@ -155,14 +160,16 @@ def deal_hand(n):
     for i in range(num_vowels):
         x = random.choice(VOWELS)
         hand[x] = hand.get(x, 0) + 1
-    
+    hand[WILDCARD] = hand.get(WILDCARD,0)+1
     for i in range(num_vowels, n):    
         x = random.choice(CONSONANTS)
         hand[x] = hand.get(x, 0) + 1
     
     return hand
+# testing
+# for x in range(5):
+#     print(deal_hand(HAND_SIZE))
 
-#
 # Problem #2: Update a hand by removing letters
 #
 def update_hand(hand,word):
@@ -213,22 +220,46 @@ def is_valid_word(word, hand, word_list):
     word_list: list of lowercase strings
     returns: boolean
     """
+    index=0
     Status=False
     word=word.lower()
     dict_word=get_frequency_dict(word)
+    index = word.find(WILDCARD)
     if word_list.count(word) > 0:
         for letter in dict_word:
             try:
                 if dict_word[letter]!=hand[letter]:
                     break
                 else:
+                    print
                     Status=True
             except KeyError:
-                pass
+                Status=False
+                break
+    elif index != -1:
+        #print(word)
+        for vowel in VOWELS:
+            #word[index]=vowel cant do this strings are immutable
+            word=word[:index]+vowel+word[index+1:] #have to insert the string
+            #print(word)
+            if word_list.count(word)>0:
+                for letter in dict_word:
+                    try:
+                        if dict_word[letter] != hand[letter]:
+                            break
+                        else:
+                            Status = True
+                    except KeyError:
+                        Status = False
+                        break
     return Status
     #pass  # TO DO... Remove this line when you implement this function
+#testing modified version
+# print(is_valid_word("honey",{'n': 1, 'h': 1, '*': 1, 'y': 1, 'd': 1, 'w': 1, 'e': 2},load_words()))
+# print(is_valid_word("h*ney",{'n': 1, 'h': 1, '*': 1, 'y': 1, 'd': 1, 'w': 1, 'e': 2},load_words()))
+# print(is_valid_word("c*wz",{"c":1,"w":1,"o":1,"z":1,"s":1,"*":1},load_words()))
+# print(is_valid_word("c*ws",{"c":1,"w":1,"o":1,"z":1,"s":1,"*":1},load_words()))
 
-#
 # Problem #5: Playing a hand
 #
 def calculate_handlen(hand):
@@ -238,9 +269,13 @@ def calculate_handlen(hand):
     hand: dictionary (string-> int)
     returns: integer
     """
-    
-    pass  # TO DO... Remove this line when you implement this function
-
+    length_hand=0
+    for key in hand:
+        length_hand+=hand[key]
+    return length_hand
+    # pass  # TO DO... Remove this line when you implement this function
+# print(calculate_handlen({'n': 1, 'h': 1, '*': 1, 'y': 1, 'd': 1, 'w': 1, 'e': 2}))
+# print(calculate_handlen({"c":1,"w":1,"o":1,"z":1,"s":1,"*":1}))
 def play_hand(hand, word_list):
 
     """
