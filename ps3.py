@@ -221,11 +221,11 @@ def is_valid_word(word, hand, word_list):
     returns: boolean
     """
     index=0
-    Status=False
     word=word.lower()
     dict_word=get_frequency_dict(word)
     index = word.find(WILDCARD)
     if word_list.count(word) > 0:
+        Status = False
         #word that doesnt have wildcard character in it
         for letter in dict_word:
             try:
@@ -239,6 +239,7 @@ def is_valid_word(word, hand, word_list):
     elif index != -1:
         #word that does have wildcard character in it
         #print(word)
+        Status = False
         for vowel in VOWELS:
             #word[index]=vowel cant do this strings are immutable
             word=word[:index]+vowel+word[index+1:] #have to insert the string
